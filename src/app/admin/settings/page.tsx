@@ -11,13 +11,13 @@ interface ShopSetting {
 }
 
 const SETTING_KEYS = [
-  { key: 'waste_factor_chop', label: 'Waste Factor (Chop)', section: 'Waste Factors' },
-  { key: 'waste_factor_length', label: 'Waste Factor (Length)', section: 'Waste Factors' },
-  { key: 'waste_factor_box', label: 'Waste Factor (Box)', section: 'Waste Factors' },
-  { key: 'tax_rate', label: 'Tax Rate (%)', section: 'Pricing' },
-  { key: 'min_price_floor', label: 'Minimum Price Floor ($)', section: 'Pricing' },
-  { key: 'margin_alert_threshold', label: 'Margin Alert Threshold (%)', section: 'Pricing' },
-  { key: 'default_due_days', label: 'Default Due Days', section: 'Defaults' },
+  { key: 'waste_factor_chop', label: 'Waste Factor (Chop)', hint: 'Multiplier for chop waste', section: 'Waste Factors' },
+  { key: 'waste_factor_length', label: 'Waste Factor (Length)', hint: 'Multiplier for length waste', section: 'Waste Factors' },
+  { key: 'waste_factor_box', label: 'Waste Factor (Box)', hint: 'Multiplier for box waste', section: 'Waste Factors' },
+  { key: 'tax_rate', label: 'Tax Rate', hint: 'Percentage', section: 'Pricing' },
+  { key: 'min_price_floor', label: 'Minimum Price Floor', hint: 'In dollars', section: 'Pricing' },
+  { key: 'margin_alert_threshold', label: 'Margin Alert Threshold', hint: 'Percentage', section: 'Pricing' },
+  { key: 'default_due_days', label: 'Default Due Days', hint: 'Days from order creation', section: 'Defaults' },
 ]
 
 export default function SettingsPage() {
@@ -25,6 +25,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [values, setValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function SettingsPage() {
   const handleSave = async () => {
     try {
       setSaving(true)
+      setSaved(false)
       setError(null)
 
       for (const { key } of SETTING_KEYS) {
@@ -60,17 +62,9 @@ export default function SettingsPage() {
         const existing = settings.find((s) => s.key === key)
 
         if (existing) {
-          await supaUpdate(
-            'shop_settings',
-            { id: `eq.${existing.id}` },
-            { value }
-          )
+          await supaUpdate('shop_settings', { id: `eq.${existing.id}` }, { value })
         } else {
-          await supaInsert('shop_settings', {
-            shop_id: SHOP_ID,
-            key,
-            value,
-          })
+          await supaInsert('shop_settings', { shop_id: SHOP_ID, key, value })
         }
       }
 
@@ -82,6 +76,8 @@ export default function SettingsPage() {
           value: values[key] || '0',
         }))
       )
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save settings')
     } finally {
@@ -89,7 +85,14 @@ export default function SettingsPage() {
     }
   }
 
-  if (loading) return <div className="text-gray-400">Loading...</div>
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-400 py-12">
+        <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+        Loading settings...
+      </div>
+    )
+  }
 
   const sections: Record<string, typeof SETTING_KEYS> = {}
   SETTING_KEYS.forEach((item) => {
@@ -99,46 +102,56 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-8 text-3xl font-bold">Shop Settings</h1>
+      <div className="mb-6">
+        <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500 mt-1">Shop-wide configuration and defaults</p>
+      </div>
+
       {error && (
-        <div className="mb-4 rounded bg-red-900/20 p-3 text-red-300">
+        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <div className="max-w-2xl space-y-8">
+      <div className="max-w-xl space-y-6">
         {Object.entries(sections).map(([section, items]) => (
-          <fieldset key={section} className="space-y-4">
-            <legend className="text-lg font-semibold">{section}</legend>
-            <div className="space-y-3 rounded bg-gray-900 p-4">
-              {items.map(({ key, label }) => (
+          <div key={section} className="rounded-xl bg-white border border-gray-200/80 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 bg-gray-50 border-b border-gray-200">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">{section}</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              {items.map(({ key, label, hint }) => (
                 <div key={key}>
-                  <label className="block text-sm font-medium text-gray-300">
-                    {label}
-                  </label>
+                  <div className="flex items-baseline justify-between mb-1.5">
+                    <label className="text-sm font-medium text-gray-700">{label}</label>
+                    {hint && <span className="text-[11px] text-gray-400">{hint}</span>}
+                  </div>
                   <input
                     type="number"
                     step="0.01"
                     value={values[key] || ''}
-                    onChange={(e) =>
-                      setValues({ ...values, [key]: e.target.value })
-                    }
-                    className="mt-1 w-full rounded bg-gray-800 border border-gray-600 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                    onChange={(e) => setValues({ ...values, [key]: e.target.value })}
+                    className="w-full rounded-lg bg-white border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                   />
                 </div>
               ))}
             </div>
-          </fieldset>
+          </div>
         ))}
-      </div>
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="mt-8 rounded bg-blue-600 px-6 py-2 font-medium hover:bg-blue-700 disabled:bg-gray-700"
-      >
-        {saving ? 'Saving...' : 'Save Settings'}
-      </button>
+        <div className="flex items-center gap-3 pt-2">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 shadow-sm"
+          >
+            {saving ? 'Saving...' : 'Save Settings'}
+          </button>
+          {saved && (
+            <span className="text-sm text-green-600 font-medium">Settings saved</span>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

@@ -11,43 +11,37 @@ export function AppNav() {
     return pathname.startsWith(href)
   }
 
+  const navLinks = [
+    { href: '/orders', label: 'Work Orders' },
+    { href: '/customers', label: 'Customers' },
+    { href: '/admin', label: 'Admin' },
+  ]
+
   return (
-    <nav className="border-b border-gray-800 bg-gray-900">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Link href="/" className="text-xl font-bold text-white">
-          TFS POS
+    <nav className="bg-white border-b border-gray-200/80">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-14">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs font-bold tracking-tight">TFS</span>
+          </div>
+          <span className="text-sm font-semibold text-gray-800 tracking-tight">
+            The Frame Shop
+          </span>
         </Link>
-        <div className="flex gap-6">
-          <Link
-            href="/orders"
-            className={`transition-colors ${
-              isActive('/orders')
-                ? 'text-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Work Orders
-          </Link>
-          <Link
-            href="/customers"
-            className={`transition-colors ${
-              isActive('/customers')
-                ? 'text-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Customers
-          </Link>
-          <Link
-            href="/admin"
-            className={`transition-colors ${
-              isActive('/admin')
-                ? 'text-white'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Admin
-          </Link>
+        <div className="flex items-center gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`px-3.5 py-1.5 rounded-md text-sm font-medium ${
+                isActive(link.href)
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </nav>

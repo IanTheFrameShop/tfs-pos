@@ -23,17 +23,20 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="w-56 border-r border-gray-800 bg-gray-900">
-      <div className="p-6">
-        <nav className="space-y-2">
+    <aside className="w-52 shrink-0 bg-white border-r border-gray-200/80">
+      <div className="px-3 py-5">
+        <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+          Admin
+        </p>
+        <nav className="space-y-0.5">
           {adminLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`block rounded px-4 py-2 transition-colors ${
+              className={`block rounded-md px-3 py-2 text-[13px] font-medium ${
                 isActive(link.href)
-                  ? 'bg-gray-800 text-white'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               {link.label}

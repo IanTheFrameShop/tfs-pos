@@ -34,9 +34,7 @@ export default function CategoriesPage() {
         })
         setCategories(data || [])
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to load categories'
-        )
+        setError(err instanceof Error ? err.message : 'Failed to load categories')
       } finally {
         setLoading(false)
       }
@@ -102,46 +100,57 @@ export default function CategoriesPage() {
     }
   }
 
-  if (loading) return <div className="text-gray-400">Loading...</div>
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-400 py-12">
+        <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+        Loading categories...
+      </div>
+    )
+  }
 
   return (
     <div>
-      <h1 className="mb-8 text-3xl font-bold">Customer Categories</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Customer Categories</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage customer segments and discount tiers</p>
+        </div>
+        <button
+          onClick={handleAddCategory}
+          disabled={saving}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 shadow-sm"
+        >
+          + Add Category
+        </button>
+      </div>
+
       {error && (
-        <div className="mb-4 rounded bg-red-900/20 p-3 text-red-300">
+        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <div className="overflow-hidden rounded border border-gray-700">
+      <div className="rounded-xl bg-white border border-gray-200/80 shadow-sm overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-800">
-            <tr className="border-b border-gray-700">
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">
-                Discount %
+              <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                Discount
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-300">
+              <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">
                 Default
               </th>
-              <th className="px-6 py-3 text-right text-sm font-medium text-gray-300">
-                Actions
-              </th>
+              <th className="px-5 py-3 w-20" />
             </tr>
           </thead>
-          <tbody>
-            {categories.map((cat, idx) => (
-              <tr
-                key={cat.id}
-                className={
-                  idx !== categories.length - 1
-                    ? 'border-b border-gray-700'
-                    : ''
-                }
-              >
-                <td className="px-6 py-3">
+          <tbody className="divide-y divide-gray-100">
+            {categories.map((cat) => (
+              <tr key={cat.id} className="hover:bg-gray-50/50">
+                <td className="px-5 py-3">
                   {editingField?.categoryId === cat.id &&
                   editingField?.field === 'name' ? (
                     <input
@@ -151,20 +160,21 @@ export default function CategoriesPage() {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter')
                           handleUpdateField(cat.id, 'name', e.currentTarget.value)
+                        if (e.key === 'Escape') setEditingField(null)
                       }}
                       autoFocus
-                      className="w-full rounded bg-gray-800 border border-gray-600 px-2 py-1 text-white focus:border-blue-500 focus:outline-none"
+                      className="w-full rounded-md bg-white border border-blue-300 px-2.5 py-1 text-sm text-gray-900 focus:border-blue-500 focus:outline-none shadow-sm"
                     />
                   ) : (
                     <button
                       onClick={() => setEditingField({ categoryId: cat.id, field: 'name' })}
-                      className="text-left hover:text-blue-400"
+                      className="text-sm font-medium text-gray-900 hover:text-blue-600"
                     >
                       {cat.name}
                     </button>
                   )}
                 </td>
-                <td className="px-6 py-3">
+                <td className="px-5 py-3">
                   {editingField?.categoryId === cat.id &&
                   editingField?.field === 'default_discount_pct' ? (
                     <input
@@ -172,70 +182,62 @@ export default function CategoriesPage() {
                       step="0.1"
                       defaultValue={cat.default_discount_pct}
                       onBlur={(e) =>
-                        handleUpdateField(
-                          cat.id,
-                          'default_discount_pct',
-                          parseFloat(e.target.value)
-                        )
+                        handleUpdateField(cat.id, 'default_discount_pct', parseFloat(e.target.value))
                       }
                       onKeyDown={(e) => {
                         if (e.key === 'Enter')
-                          handleUpdateField(
-                            cat.id,
-                            'default_discount_pct',
-                            parseFloat(e.currentTarget.value)
-                          )
+                          handleUpdateField(cat.id, 'default_discount_pct', parseFloat(e.currentTarget.value))
+                        if (e.key === 'Escape') setEditingField(null)
                       }}
                       autoFocus
-                      className="w-20 rounded bg-gray-800 border border-gray-600 px-2 py-1 text-white focus:border-blue-500 focus:outline-none"
+                      className="w-20 rounded-md bg-white border border-blue-300 px-2.5 py-1 text-sm text-gray-900 focus:border-blue-500 focus:outline-none shadow-sm"
                     />
                   ) : (
                     <button
                       onClick={() =>
-                        setEditingField({
-                          categoryId: cat.id,
-                          field: 'default_discount_pct',
-                        })
+                        setEditingField({ categoryId: cat.id, field: 'default_discount_pct' })
                       }
-                      className="hover:text-blue-400"
+                      className="text-sm text-gray-700 hover:text-blue-600"
                     >
                       {cat.default_discount_pct.toFixed(1)}%
                     </button>
                   )}
                 </td>
-                <td className="px-6 py-3">
-                  <input
-                    type="checkbox"
-                    checked={cat.is_default}
-                    onChange={(e) =>
-                      handleUpdateField(cat.id, 'is_default', e.target.checked)
-                    }
-                    disabled={cat.is_default}
-                    className="rounded border-gray-600 bg-gray-800"
-                  />
+                <td className="px-5 py-3 text-center">
+                  {cat.is_default ? (
+                    <span className="inline-block rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-medium text-blue-700">
+                      Default
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleUpdateField(cat.id, 'is_default', true)}
+                      className="text-xs text-gray-400 hover:text-blue-600"
+                    >
+                      Set default
+                    </button>
+                  )}
                 </td>
-                <td className="px-6 py-3 text-right">
-                  <button
-                    onClick={() => handleDeleteCategory(cat.id)}
-                    disabled={saving || cat.is_default}
-                    className="text-red-400 hover:text-red-300 disabled:text-gray-500"
-                  >
-                    Delete
-                  </button>
+                <td className="px-5 py-3 text-right">
+                  {!cat.is_default && (
+                    <button
+                      onClick={() => handleDeleteCategory(cat.id)}
+                      disabled={saving}
+                      className="text-xs text-gray-400 hover:text-red-600 disabled:text-gray-300"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {categories.length === 0 && (
+          <div className="text-center py-12 text-sm text-gray-400">
+            No categories yet. Add one to get started.
+          </div>
+        )}
       </div>
-
-      <button
-        onClick={handleAddCategory}
-        disabled={saving}
-        className="mt-4 rounded bg-blue-600 px-6 py-2 font-medium hover:bg-blue-700 disabled:bg-gray-700"
-      >
-        Add Category
-      </button>
     </div>
   )
 }

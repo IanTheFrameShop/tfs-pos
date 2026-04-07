@@ -3,37 +3,37 @@ import Link from 'next/link'
 const sections = [
   {
     title: 'Markup Tiers',
-    description: 'Manage pricing tiers and markup multipliers',
+    description: 'Pricing tiers and markup multipliers',
     href: '/admin/markup-tiers',
   },
   {
     title: 'Services & Fitting',
-    description: 'Configure service offerings and fitting options',
+    description: 'Service offerings and fitting options',
     href: '/admin/services',
   },
   {
     title: 'Glazing Types',
-    description: 'Manage glazing options and specifications',
+    description: 'Glazing options and pricing',
     href: '/admin/glazing',
   },
   {
     title: 'Matboards',
-    description: 'Browse and manage matboard catalog',
+    description: 'Matboard catalog and costs',
     href: '/admin/matboards',
   },
   {
     title: 'Customer Categories',
-    description: 'Set up customer segments and discount tiers',
+    description: 'Customer segments and discounts',
     href: '/admin/categories',
   },
   {
     title: 'Mouldings',
-    description: 'Browse moulding inventory and costs',
+    description: 'Moulding inventory and costs',
     href: '/admin/mouldings',
   },
   {
     title: 'Settings',
-    description: 'Shop-wide settings and configuration',
+    description: 'Shop-wide configuration',
     href: '/admin/settings',
   },
 ]
@@ -41,16 +41,21 @@ const sections = [
 export default function AdminDashboard() {
   return (
     <div>
-      <h1 className="mb-8 text-3xl font-bold">Admin Dashboard</h1>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="mb-8">
+        <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Manage your shop configuration</p>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
         {sections.map((section) => (
           <Link
             key={section.href}
             href={section.href}
-            className="block rounded bg-gray-900 p-6 border border-gray-800 hover:border-gray-700 transition-colors"
+            className="group block rounded-xl bg-white p-5 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-gray-300 transition-all"
           >
-            <h2 className="text-xl font-semibold mb-2">{section.title}</h2>
-            <p className="text-gray-400 text-sm">{section.description}</p>
+            <h2 className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+              {section.title}
+            </h2>
+            <p className="text-gray-500 text-xs mt-1">{section.description}</p>
           </Link>
         ))}
       </div>
